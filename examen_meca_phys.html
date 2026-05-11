@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grille d'Examen Locale - Mécanique Physique</title>
+
+    <!-- MathJax pour les équations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- jsPDF pour l'export en PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #16a085;
+        }
+        .chapter {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            border-left: 5px solid #3498db;
+        }
+        .exercise {
+            background: #f0f8ff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #16a085;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .criteria-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .criteria-table th, .criteria-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .criteria-table th {
+            background: #3498db;
+            color: white;
+        }
+        .criteria-table tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+        .note {
+            font-style: italic;
+            color: #7f8c8d;
+            margin: 10px 0;
+        }
+        .highlight {
+            background: #fffde7;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .math {
+            font-size: 1.1em;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .buttons button:hover {
+            background: #2980b9;
+        }
+        .buttons button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .correction {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #2ecc71;
+            display: none;
+        }
+        .correction.show {
+            display: block;
+        }
+        .correct {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .score {
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+        .score-value {
+            color: #28a745;
+        }
+        .timer {
+            font-size: 1.5em;
+            text-align: center;
+            margin: 20px 0;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .login-form input {
+            margin-bottom: 10px;
+        }
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .user-info button {
+            background: #e74c3c;
+        }
+        .user-info button:hover {
+            background: #c0392b;
+        }
+        .hidden {
+            display: none;
+        }
+        .progress-container {
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: #2ecc71;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .teacher-dashboard {
+            margin: 20px 0;
+        }
+        .teacher-dashboard table {
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Formulaire de connexion -->
+        <div id="login-section" class="login-form">
+            <h2>Connexion</h2>
+            <div class="form-group">
+                <label>Email :</label>
+                <input type="email" id="login-email" placeholder="Votre email...">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe :</label>
+                <input type="password" id="login-password" placeholder="Votre mot de passe...">
+            </div>
+            <div class="form-group">
+                <label>Rôle :</label>
+                <select id="login-role">
+                    <option value="student">Étudiant</option>
+                    <option value="teacher">Enseignant</option>
+                </select>
+            </div>
+            <div class="buttons">
+                <button onclick="login()">Se connecter</button>
+            </div>
+            <div id="login-message" class="error-message"></div>
+        </div>
+
+        <!-- Section principale (cachée avant connexion) -->
+        <div id="main-section" class="hidden">
+            <div class="user-info">
+                <span>Connecté en tant que : <strong id="user-email"></strong> (<strong id="user-role"></strong>)</span>
+                <button onclick="logout()">Déconnexion</button>
+            </div>
+
+            <h1>Grille d'Examen - Mécanique Physique</h1>
+            <p class="note">Mode examen : <strong id="exam-mode">Désactivé</strong> | Temps restant : <span id="timer" class="timer">1h30</span></p>
+
+            <div class="progress-container">
+                <p>Progrès : <span id="progress-percentage">0%</span></p>
+                <div class="progress-bar">
+                    <div id="progress-bar" class="progress"></div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button onclick="startExam()" id="start-exam-btn">Commencer l'examen</button>
+                <button onclick="submitExam()" id="submit-exam-btn" disabled>Soumettre l'examen</button>
+                <button onclick="exportToPDF()">Exporter en PDF</button>
+                <button onclick="exportToCSV()">Exporter en CSV</button>
+            </div>
+            <div id="success-message" class="success-message"></div>
+            <div id="error-message" class="error-message"></div>
+
+            <!-- Tableau de bord de l'enseignant (caché par défaut) -->
+            <div id="teacher-dashboard" class="teacher-dashboard hidden">
+                <h2>Tableau de bord de l'enseignant</h2>
+                <div id="results-table-container"></div>
+            </div>
+
+            <!-- Chapitres (cachés avant le début de l'examen) -->
+            <div id="chapters-section" class="hidden">
+                <!-- Chapitre 1: Pré-requis Mathématiques -->
+                <div class="chapter">
+                    <h2>1. Pré-requis Mathématiques (Produit Scalaire et Vectoriel)</h2>
+                    <div class="score">Score : <span id="chapter1-score" class="score-value">0/30</span></div>
+
+                    <h3>Exercices Concrets</h3>
+
+                    <div class="exercise">
+                        <h4>Savoir</h4>
+                        <p><strong>Exercice 1 : Questions Théoriques</strong></p>
+                        <div class="form-group">
+                            <label>Définir le produit scalaire :</label>
+                            <textarea id="ex1-q1" placeholder="Votre réponse..." disabled></textarea>
+                            <div class="correction" id="ex1-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">Le produit scalaire de deux vecteurs \( \vec{A} \) et \( \vec{B} \) est défini par \( \vec{A} \cdot \vec{B} = |\vec{A}| |\vec{B}| \cos \theta \), où \( \theta \) est l'angle entre les deux vecteurs.</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Donner un exemple physique pour le produit scalaire :</label>
+                            <textarea id="ex1-q2" placeholder="Votre réponse..." disabled></textarea>
+                            <div class="correction" id="ex1-q2-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">Exemple : Le travail d'une force \( \vec{F} \) sur un déplacement \( \vec{d} \) est donné par \( W = \vec{F} \cdot \vec{d} \).</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Expliquer pourquoi le produit vectoriel n’est défini qu’en 3D :</label>
+                            <textarea id="ex1-q3" placeholder="Votre réponse..." disabled></textarea>
+                            <div class="correction" id="ex1-q3-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">Le produit vectoriel est défini uniquement en 3D car il nécessite deux vecteurs pour générer un troisième vecteur orthogonal aux deux premiers, ce qui n'est possible que dans un espace à trois dimensions.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="exercise">
+                        <h4>Compétences Techniques</h4>
+                        <p><strong>Exercice 3 : Calculs de Base</strong></p>
+                        <p>Soient les vecteurs : \( \vec{A} = 2\vec{i} + 3\vec{j} - \vec{k} \) et \( \vec{B} = -\vec{i} + 4\vec{j} + 2\vec{k} \).</p>
+                        <div class="form-group">
+                            <label>Calculer \( \vec{A} \cdot \vec{B} \) :</label>
+                            <input type="text" id="ex3-q1" placeholder="Votre réponse..." disabled>
+                            <div class="correction" id="ex3-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">\( \vec{A} \cdot \vec{B} = (2)(-1) + (3)(4) + (-1)(2) = -2 + 12 - 2 = 8 \)</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Calculer \( \vec{A} \times \vec{B} \) :</label>
+                            <input type="text" id="ex3-q2" placeholder="Votre réponse..." disabled>
+                            <div class="correction" id="ex3-q2-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">\( \vec{A} \times \vec{B} = 10\vec{i} - 3\vec{j} + 11\vec{k} \)</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Calculer l’angle entre \( \vec{A} \) et \( \vec{B} \) (en degrés) :</label>
+                            <input type="text" id="ex3-q3" placeholder="Votre réponse..." disabled>
+                            <div class="correction" id="ex3-q3-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">L'angle \( \theta \approx 65.2^\circ \).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="exercise">
+                        <h4>Compétences Rédactionnelles</h4>
+                        <p><strong>Exercice 5 : Démonstration</strong></p>
+                        <div class="form-group">
+                            <label>Démontrer que le produit vectoriel est distributif :</label>
+                            <textarea id="ex5-q1" placeholder="Votre démonstration..." disabled></textarea>
+                            <div class="correction" id="ex5-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">
+                                    Pour démontrer que \( \vec{A} \times (\vec{B} + \vec{C}) = \vec{A} \times \vec{B} + \vec{A} \times \vec{C} \), on utilise la définition du produit vectoriel en termes de déterminant.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chapitre 2: Dérivées des Vecteurs -->
+                <div class="chapter">
+                    <h2>2. Dérivées des Vecteurs</h2>
+                    <div class="score">Score : <span id="chapter2-score" class="score-value">0/30</span></div>
+
+                    <h3>Exercices Concrets</h3>
+
+                    <div class="exercise">
+                        <h4>Savoir</h4>
+                        <div class="form-group">
+                            <label>Définir la dérivée d’un vecteur \( \vec{r}(t) \) :</label>
+                            <textarea id="ex2-1-q1" placeholder="Votre réponse..." disabled></textarea>
+                            <div class="correction" id="ex2-1-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">La dérivée d'un vecteur \( \vec{r}(t) = x(t)\vec{i} + y(t)\vec{j} + z(t)\vec{k} \) est donnée par \( \frac{d\vec{r}}{dt} = \frac{dx}{dt}\vec{i} + \frac{dy}{dt}\vec{j} + \frac{dz}{dt}\vec{k} \).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="exercise">
+                        <h4>Compétences Techniques</h4>
+                        <p>Soit le vecteur position : \( \vec{r}(t) = t^2\vec{i} + \sin(t)\vec{j} + e^{-t}\vec{k} \).</p>
+                        <div class="form-group">
+                            <label>Calculer \( \frac{d\vec{r}}{dt} \) (vitesse) :</label>
+                            <input type="text" id="ex2-3-q1" placeholder="Votre réponse..." disabled>
+                            <div class="correction" id="ex2-3-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">\( \frac{d\vec{r}}{dt} = 2t\vec{i} + \cos(t)\vec{j} - e^{-t}\vec{k} \)</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Calculer \( \frac{d^2\vec{r}}{dt^2} \) (accélération) :</label>
+                            <input type="text" id="ex2-3-q2" placeholder="Votre réponse..." disabled>
+                            <div class="correction" id="ex2-3-q2-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">\( \frac{d^2\vec{r}}{dt^2} = 2\vec{i} - \sin(t)\vec{j} + e^{-t}\vec{k} \)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chapitre 3: Systèmes de Coordonnées -->
+                <div class="chapter">
+                    <h2>3. Systèmes de Coordonnées (Cylindriques, Polaires)</h2>
+                    <div class="score">Score : <span id="chapter3-score" class="score-value">0/30</span></div>
+
+                    <h3>Exercices Concrets</h3>
+
+                    <div class="exercise">
+                        <h4>Savoir</h4>
+                        <div class="form-group">
+                            <label>Définir les coordonnées cylindriques \( (r, \theta, z) \) :</label>
+                            <textarea id="ex3-1-q1" placeholder="Votre réponse..." disabled></textarea>
+                            <div class="correction" id="ex3-1-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">Les coordonnées cylindriques \( (r, \theta, z) \) sont définies par : \( x = r \cos \theta \), \( y = r \sin \theta \), et \( z = z \).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="exercise">
+                        <h4>Compétences Techniques</h4>
+                        <p>Convertir les points suivants de cartésien à cylindrique :</p>
+                        <div class="form-group">
+                            <label>Convertir \( (1, 1, 0) \) :</label>
+                            <input type="text" id="ex3-3-q1" placeholder="Votre réponse..." disabled>
+                            <div class="correction" id="ex3-3-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">\( (\sqrt{2}, \pi/4, 0) \)</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Convertir \( (0, -2, 3) \) :</label>
+                            <input type="text" id="ex3-3-q2" placeholder="Votre réponse..." disabled>
+                            <div class="correction" id="ex3-3-q2-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">\( (2, -\pi/2, 3) \)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chapitre 4: Passage de Coordonnées -->
+                <div class="chapter">
+                    <h2>4. Passage de Coordonnées (Cartésien → Cylindrique)</h2>
+                    <div class="score">Score : <span id="chapter4-score" class="score-value">0/30</span></div>
+
+                    <h3>Exercices Concrets</h3>
+
+                    <div class="exercise">
+                        <h4>Savoir</h4>
+                        <div class="form-group">
+                            <label>Énoncer les formules de conversion entre cartésien et cylindrique :</label>
+                            <textarea id="ex4-1-q1" placeholder="Votre réponse..." disabled></textarea>
+                            <div class="correction" id="ex4-1-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">\( x = r \cos \theta \), \( y = r \sin \theta \), \( z = z \).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="exercise">
+                        <h4>Compétences Techniques</h4>
+                        <div class="form-group">
+                            <label>Convertir \( \vec{A} = 3\vec{i} - 4\vec{j} + 2\vec{k} \) en coordonnées cylindriques :</label>
+                            <input type="text" id="ex4-3-q1" placeholder="Votre réponse..." disabled>
+                            <div class="correction" id="ex4-3-q1-correction">
+                                <p><strong>Correction :</strong></p>
+                                <p class="solution">\( (5, -0.927, 2) \)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Score Global -->
+                <div class="chapter">
+                    <h2>Score Global</h2>
+                    <div class="score">Score total : <span id="global-score" class="score-value">0/120</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ======================
+        // DONNÉES PRÉDÉFINIES
+        // ======================
+
+        // Comptes utilisateurs (simulés)
+        const users = [
+            { email: "enseignant@univ.fr", password: "prof123", role: "teacher", name: "Professeur Dupont" },
+            { email: "etudiant1@univ.fr", password: "etud123", role: "student", name: "Tarik BOURAGBA" },
+            { email: "etudiant2@univ.fr", password: "etud456", role: "student", name: "Jean Martin" },
+            { email: "etudiant3@univ.fr", password: "etud789", role: "student", name: "Marie Durand" }
+        ];
+
+        // Solutions attendues pour chaque question (tableau de mots-clés ou réponses exactes)
+        const solutions = {
+            "ex1-q1": ["produit scalaire", "cos θ", "cos theta", "|a||b|cosθ"],
+            "ex1-q2": ["travail", "force", "déplacement", "w = f·d"],
+            "ex1-q3": ["3d", "trois dimensions", "espace à 3 dimensions", "orthogonal"],
+            "ex3-q1": ["8"],
+            "ex3-q2": ["10i - 3j + 11k", "10\\vec{i} - 3\\vec{j} + 11\\vec{k}", "(10,-3,11)"],
+            "ex3-q3": ["65.2", "65.2°", "65 degrés"],
+            "ex5-q1": ["distributif", "distributivité", "a×(b+c) = a×b + a×c"],
+            "ex2-1-q1": ["dérivée", "dx/dt", "dy/dt", "dz/dt", "dvec{r}/dt"],
+            "ex2-3-q1": ["2t\\vec{i} + \\cos(t)\\vec{j} - e^{-t}\\vec{k}", "2t i + cos(t) j - e^{-t} k", "(2t, cos(t), -e^{-t})"],
+            "ex2-3-q2": ["2\\vec{i} - \\sin(t)\\vec{j} + e^{-t}\\vec{k}", "2 i - sin(t) j + e^{-t} k", "(2, -sin(t), e^{-t})"],
+            "ex3-1-q1": ["coordonnées cylindriques", "r cos θ", "r sin θ", "x = r cosθ", "y = r sinθ"],
+            "ex3-3-q1": ["(√2, π/4, 0)", "(sqrt(2), pi/4, 0)", "(1.414, 0.785, 0)"],
+            "ex3-3-q2": ["(2, -π/2, 3)", "(2, -pi/2, 3)", "(2, -1.571, 3)"],
+            "ex4-1-q1": ["x = r cos θ", "y = r sin θ", "z = z", "r = sqrt(x² + y²)", "θ = arctan(y/x)"],
+            "ex4-3-q1": ["(5, -0.927, 2)", "(5, -53.13°, 2)", "(5, -0.927 rad, 2)"]
+        };
+
+        // Pondérations pour chaque question (en points)
+        const weights = {
+            "ex1-q1": 5,
+            "ex1-q2": 5,
+            "ex1-q3": 5,
+            "ex3-q1": 5,
+            "ex3-q2": 5,
+            "ex3-q3": 5,
+            "ex5-q1": 10,
+            "ex2-1-q1": 5,
+            "ex2-3-q1": 10,
+            "ex2-3-q2": 10,
+            "ex3-1-q1": 5,
+            "ex3-3-q1": 5,
+            "ex3-3-q2": 5,
+            "ex4-1-q1": 5,
+            "ex4-3-q1": 10
+        };
+
+        // Chapitres et leurs questions
+        const chapters = {
+            "chapter1": ["ex1-q1", "ex1-q2", "ex1-q3", "ex3-q1", "ex3-q2", "ex3-q3", "ex5-q1"],
+            "chapter2": ["ex2-1-q1", "ex2-3-q1", "ex2-3-q2"],
+            "chapter3": ["ex3-1-q1", "ex3-3-q1", "ex3-3-q2"],
+            "chapter4": ["ex4-1-q1", "ex4-3-q1"]
+        };
+
+        // ======================
+        // VARIABLES GLOBALES
+        // ======================
+        let currentUser = null;
+        let examStarted = false;
+        let timeLeft = 5400; // 1h30 en secondes
+        let timerInterval;
+        let examSubmitted = false;
+
+        // ======================
+        // FONCTIONS DE CONNEXION
+        // ======================
+
+        // Connexion
+        function login() {
+            const email = document.getElementById("login-email").value.trim();
+            const password = document.getElementById("login-password").value;
+            const role = document.getElementById("login-role").value;
+
+            // Vérifier les identifiants
+            const user = users.find(u => u.email === email && u.password === password && u.role === role);
+
+            if (user) {
+                currentUser = user;
+                document.getElementById("user-email").textContent = user.email;
+                document.getElementById("user-role").textContent = role === "teacher" ? "Enseignant" : "Étudiant";
+                document.getElementById("login-section").classList.add("hidden");
+                document.getElementById("main-section").classList.remove("hidden");
+                showMessage("Connexion réussie !", "success");
+
+                // Charger les données selon le rôle
+                if (role === "student") {
+                    loadStudentData();
+                } else {
+                    loadTeacherDashboard();
+                }
+            } else {
+                showMessage("Email, mot de passe ou rôle incorrect.", "error");
+            }
+        }
+
+        // Déconnexion
+        function logout() {
+            currentUser = null;
+            examStarted = false;
+            examSubmitted = false;
+            timeLeft = 5400;
+            clearInterval(timerInterval);
+
+            document.getElementById("login-section").classList.remove("hidden");
+            document.getElementById("main-section").classList.add("hidden");
+            document.getElementById("teacher-dashboard").classList.add("hidden");
+            document.getElementById("chapters-section").classList.add("hidden");
+
+            resetExam();
+            showMessage("Déconnexion réussie.", "success");
+        }
+
+        // Charger les données de l'étudiant
+        function loadStudentData() {
+            const savedAnswers = localStorage.getItem(`examAnswers_${currentUser.email}`);
+            if (savedAnswers) {
+                const answers = JSON.parse(savedAnswers);
+                for (const [id, value] of Object.entries(answers)) {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.value = value;
+                    }
+                }
+            }
+
+            const savedExamState = localStorage.getItem(`examState_${currentUser.email}`);
+            if (savedExamState) {
+                const state = JSON.parse(savedExamState);
+                examStarted = state.examStarted;
+                timeLeft = state.timeLeft;
+                examSubmitted = state.examSubmitted;
+
+                if (examStarted) {
+                    document.getElementById("start-exam-btn").disabled = true;
+                    document.getElementById("submit-exam-btn").disabled = !examSubmitted;
+                    document.getElementById("chapters-section").classList.remove("hidden");
+                    document.getElementById("exam-mode").textContent = "Activé";
+
+                    const inputs = document.querySelectorAll('input[type="text"], textarea');
+                    inputs.forEach(input => {
+                        input.disabled = examSubmitted;
+                    });
+
+                    if (!examSubmitted) {
+                        startTimer();
+                    } else {
+                        checkAllAnswers();
+                    }
+                }
+            }
+        }
+
+        // ======================
+        // FONCTIONS D'EXAMEN
+        // ======================
+
+        // Démarrer l'examen
+        function startExam() {
+            if (!currentUser || currentUser.role !== "student") {
+                showMessage("Seuls les étudiants peuvent passer l'examen.", "error");
+                return;
+            }
+
+            examStarted = true;
+            examSubmitted = false;
+            document.getElementById("start-exam-btn").disabled = true;
+            document.getElementById("submit-exam-btn").disabled = false;
+            document.getElementById("chapters-section").classList.remove("hidden");
+            document.getElementById("exam-mode").textContent = "Activé";
+
+            // Activer les champs de saisie
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+            inputs.forEach(input => {
+                input.disabled = false;
+            });
+
+            // Démarrer le timer
+            startTimer();
+
+            // Sauvegarder l'état de l'examen
+            saveExamState();
+
+            showMessage("Examen commencé ! Vous avez 1h30 pour répondre.", "success");
+        }
+
+        // Soumettre l'examen
+        function submitExam() {
+            if (!examStarted) {
+                showMessage("L'examen n'a pas encore commencé.", "error");
+                return;
+            }
+
+            if (examSubmitted) {
+                showMessage("L'examen a déjà été soumis.", "error");
+                return;
+            }
+
+            examSubmitted = true;
+
+            // Désactiver les champs de saisie
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+
+            // Arrêter le timer
+            clearInterval(timerInterval);
+
+            // Corriger l'examen
+            checkAllAnswers();
+
+            // Sauvegarder les réponses et l'état
+            saveAllAnswers();
+            saveExamState();
+
+            document.getElementById("submit-exam-btn").disabled = true;
+            showMessage("Examen soumis ! Les corrections sont maintenant visibles.", "success");
+        }
+
+        // Démarrer le timer
+        function startTimer() {
+            const timerElement = document.getElementById("timer");
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay(timerElement);
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                    showMessage("Temps écoulé ! L'examen a été soumis automatiquement.", "error");
+                }
+
+                // Sauvegarder l'état toutes les 30 secondes
+                if (timeLeft % 30 === 0) {
+                    saveExamState();
+                }
+            }, 1000);
+
+            updateTimerDisplay(timerElement);
+        }
+
+        // Mettre à jour l'affichage du timer
+        function updateTimerDisplay(timerElement) {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        // Sauvegarder l'état de l'examen
+        function saveExamState() {
+            if (!currentUser) return;
+
+            const state = {
+                examStarted,
+                timeLeft,
+                examSubmitted
+            };
+            localStorage.setItem(`examState_${currentUser.email}`, JSON.stringify(state));
+        }
+
+        // Sauvegarder toutes les réponses dans localStorage
+        function saveAllAnswers() {
+            if (!currentUser) return;
+
+            const answers = {};
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+            inputs.forEach(input => {
+                answers[input.id] = input.value;
+            });
+            localStorage.setItem(`examAnswers_${currentUser.email}`, JSON.stringify(answers));
+            showMessage("Réponses enregistrées localement avec succès !", "success");
+        }
+
+        // ======================
+        // FONCTIONS DE CORRECTION
+        // ======================
+
+        // Vérifier toutes les réponses et afficher les corrections
+        function checkAllAnswers() {
+            let globalScore = 0;
+            const maxGlobalScore = Object.values(weights).reduce((a, b) => a + b, 0);
+
+            // Réinitialiser les scores et les corrections
+            Object.keys(chapters).forEach(chapter => {
+                document.getElementById(`${chapter}-score`).textContent = `0/${chapters[chapter].reduce((a, b) => a + weights[b], 0)}`;
+            });
+            document.getElementById('global-score').textContent = `0/${maxGlobalScore}`;
+
+            // Vérifier chaque réponse
+            Object.entries(solutions).forEach(([id, expectedAnswers]) => {
+                const input = document.getElementById(id);
+                const correction = document.getElementById(`${id}-correction`);
+                const userAnswer = input.value.trim().toLowerCase();
+
+                // Vérifier si la réponse contient l'une des solutions attendues
+                const isCorrect = expectedAnswers.some(answer =>
+                    userAnswer.includes(answer.toLowerCase())
+                );
+
+                if (isCorrect) {
+                    input.parentElement.classList.add('correct');
+                    input.parentElement.classList.remove('incorrect');
+                    globalScore += weights[id];
+                } else {
+                    input.parentElement.classList.add('incorrect');
+                    input.parentElement.classList.remove('correct');
+                }
+
+                // Afficher la correction
+                if (correction) {
+                    correction.classList.add('show');
+                }
+            });
+
+            // Mettre à jour les scores par chapitre
+            Object.entries(chapters).forEach(([chapter, questions]) => {
+                let chapterScore = 0;
+                questions.forEach(id => {
+                    const input = document.getElementById(id);
+                    const userAnswer = input.value.trim().toLowerCase();
+                    const expectedAnswers = solutions[id] || [];
+                    const isCorrect = expectedAnswers.some(answer =>
+                        userAnswer.includes(answer.toLowerCase())
+                    );
+                    if (isCorrect) {
+                        chapterScore += weights[id];
+                    }
+                });
+                const maxChapterScore = questions.reduce((a, b) => a + weights[b], 0);
+                document.getElementById(`${chapter}-score`).textContent = `${chapterScore}/${maxChapterScore}`;
+            });
+
+            // Mettre à jour le score global
+            document.getElementById('global-score').textContent = `${globalScore}/${maxGlobalScore}`;
+
+            // Mettre à jour la barre de progrès
+            const progressPercentage = (globalScore / maxGlobalScore) * 100;
+            document.getElementById('progress-percentage').textContent = `${Math.round(progressPercentage)}%`;
+            document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+
+            // Sauvegarder le score dans localStorage
+            if (currentUser) {
+                const result = {
+                    email: currentUser.email,
+                    name: currentUser.name,
+                    timestamp: new Date().toISOString(),
+                    scores: {},
+                    totalScore: globalScore
+                };
+
+                Object.entries(chapters).forEach(([chapter, questions]) => {
+                    let chapterScore = 0;
+                    questions.forEach(id => {
+                        const input = document.getElementById(id);
+                        const userAnswer = input.value.trim().toLowerCase();
+                        const expectedAnswers = solutions[id] || [];
+                        const isCorrect = expectedAnswers.some(answer =>
+                            userAnswer.includes(answer.toLowerCase())
+                        );
+                        if (isCorrect) {
+                            chapterScore += weights[id];
+                        }
+                    });
+                    result.scores[chapter] = chapterScore;
+                });
+
+                localStorage.setItem(`examResult_${currentUser.email}`, JSON.stringify(result));
+            }
+
+            showMessage(`Score global : ${globalScore}/${maxGlobalScore}`, "success");
+        }
+
+        // ======================
+        // FONCTIONS D'EXPORT
+        // ======================
+
+        // Exporter en PDF
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Titre
+            doc.setFontSize(20);
+            doc.text("Grille de Compétences - Mécanique Physique", 105, 20, { align: "center" });
+            doc.setFontSize(12);
+            doc.text(`Étudiant : ${currentUser ? currentUser.name : "Inconnu"}`, 105, 30, { align: "center" });
+            doc.text(`Score : ${document.getElementById('global-score').textContent}`, 105, 40, { align: "center" });
+
+            // Ajouter les réponses et corrections
+            let y = 50;
+            Object.entries(solutions).forEach(([id, solution]) => {
+                const input = document.getElementById(id);
+                const userAnswer = input.value.trim();
+                const correction = document.getElementById(`${id}-correction`);
+                const isCorrect = correction.classList.contains('show') ?
+                    !input.parentElement.classList.contains('incorrect') :
+                    false;
+
+                if (userAnswer !== "") {
+                    doc.setFontSize(10);
+                    doc.text(`Question: ${id}`, 10, y);
+                    doc.text(`Réponse: ${userAnswer}`, 10, y + 10);
+                    doc.text(`Statut: ${isCorrect ? "Correct" : "Incorrect"}`, 10, y + 20);
+                    y += 30;
+                }
+            });
+
+            // Sauvegarder le PDF
+            doc.save(`grille_mecanique_physique_${currentUser ? currentUser.email : "inconnu"}.pdf`);
+        }
+
+        // Exporter en CSV
+        function exportToCSV() {
+            const headers = ["ID", "Réponse", "Statut"];
+            const rows = [];
+
+            Object.entries(solutions).forEach(([id, expectedAnswers]) => {
+                const input = document.getElementById(id);
+                const userAnswer = input.value.trim();
+                const isCorrect = expectedAnswers.some(answer =>
+                    userAnswer.toLowerCase().includes(answer.toLowerCase())
+                );
+                const status = isCorrect ? "Correct" : "Incorrect";
+                rows.push([id, userAnswer, status]);
+            });
+
+            // Créer le contenu CSV
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += headers.join(",") + "\n";
+            csvContent += rows.map(row => row.map(field => `"${field.replace(/"/g, '""')}"`).join(",")).join("\n");
+
+            // Créer un lien de téléchargement
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `grille_mecanique_physique_${currentUser ? currentUser.email : "inconnu"}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ======================
+        // FONCTIONS POUR L'ENSEIGNANT
+        // ======================
+
+        // Charger le tableau de bord de l'enseignant
+        function loadTeacherDashboard() {
+            document.getElementById("start-exam-btn").style.display = "none";
+            document.getElementById("submit-exam-btn").style.display = "none";
+            document.getElementById("chapters-section").classList.add("hidden");
+            document.getElementById("teacher-dashboard").classList.remove("hidden");
+
+            // Récupérer tous les résultats sauvegardés localement
+            const results = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith("examResult_")) {
+                    const result = JSON.parse(localStorage.getItem(key));
+                    results.push(result);
+                }
+            }
+
+            // Afficher les résultats dans un tableau
+            const tableContainer = document.getElementById("results-table-container");
+            tableContainer.innerHTML = "";
+
+            if (results.length === 0) {
+                tableContainer.innerHTML = "<p>Aucun résultat d'examen disponible.</p>";
+                return;
+            }
+
+            const table = document.createElement("table");
+            table.className = "criteria-table";
+            table.innerHTML = `
+                <tr>
+                    <th>Étudiant</th>
+                    <th>Email</th>
+                    <th>Score Global</th>
+                    <th>Chapitre 1</th>
+                    <th>Chapitre 2</th>
+                    <th>Chapitre 3</th>
+                    <th>Chapitre 4</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            `;
+
+            results.forEach(result => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td>${result.name}</td>
+                    <td>${result.email}</td>
+                    <td>${result.totalScore}/120</td>
+                    <td>${result.scores.chapter1 || 0}/30</td>
+                    <td>${result.scores.chapter2 || 0}/30</td>
+                    <td>${result.scores.chapter3 || 0}/30</td>
+                    <td>${result.scores.chapter4 || 0}/30</td>
+                    <td>${new Date(result.timestamp).toLocaleString()}</td>
+                    <td><button onclick="viewStudentDetails('${result.email}')">Voir détails</button></td>
+                `;
+            });
+
+            tableContainer.appendChild(table);
+        }
+
+        // Voir les détails d'un étudiant
+        function viewStudentDetails(email) {
+            const result = JSON.parse(localStorage.getItem(`examResult_${email}`));
+            const answers = JSON.parse(localStorage.getItem(`examAnswers_${email}`) || "{}");
+
+            if (!result || !answers) {
+                showMessage("Aucun détail disponible pour cet étudiant.", "error");
+                return;
+            }
+
+            // Créer une fenêtre modale (simplifiée)
+            const modal = document.createElement("div");
+            modal.style.position = "fixed";
+            modal.style.top = "0";
+            modal.style.left = "0";
+            modal.style.width = "100%";
+            modal.style.height = "100%";
+            modal.style.backgroundColor = "rgba(0,0,0,0.5)";
+            modal.style.zIndex = "1000";
+            modal.style.display = "flex";
+            modal.style.justifyContent = "center";
+            modal.style.alignItems = "center";
+
+            const modalContent = document.createElement("div");
+            modalContent.style.backgroundColor = "white";
+            modalContent.style.padding = "20px";
+            modalContent.style.borderRadius = "8px";
+            modalContent.style.maxWidth = "800px";
+            modalContent.style.maxHeight = "80vh";
+            modalContent.style.overflow = "auto";
+
+            modalContent.innerHTML = `
+                <h2>Détails de l'étudiant : ${result.name}</h2>
+                <p><strong>Email :</strong> ${result.email}</p>
+                <p><strong>Score global :</strong> ${result.totalScore}/120</p>
+                <p><strong>Date :</strong> ${new Date(result.timestamp).toLocaleString()}</p>
+                <h3>Réponses détaillées :</h3>
+            `;
+
+            // Ajouter les réponses
+            Object.entries(answers).forEach(([id, answer]) => {
+                const questionDiv = document.createElement("div");
+                questionDiv.style.marginBottom = "15px";
+                questionDiv.style.padding = "10px";
+                questionDiv.style.backgroundColor = "#f8f9fa";
+                questionDiv.style.borderRadius = "5px";
+
+                const expectedAnswers = solutions[id] || [];
+                const isCorrect = expectedAnswers.some(expected =>
+                    answer.toLowerCase().includes(expected.toLowerCase())
+                );
+
+                questionDiv.innerHTML = `
+                    <p><strong>Question :</strong> ${id}</p>
+                    <p><strong>Réponse :</strong> ${answer}</p>
+                    <p><strong>Statut :</strong> <span style="color: ${isCorrect ? "green" : "red"}">${isCorrect ? "Correct" : "Incorrect"}</span></p>
+                `;
+
+                modalContent.appendChild(questionDiv);
+            });
+
+            const closeButton = document.createElement("button");
+            closeButton.textContent = "Fermer";
+            closeButton.style.marginTop = "10px";
+            closeButton.style.padding = "10px 20px";
+            closeButton.style.backgroundColor = "#e74c3c";
+            closeButton.style.color = "white";
+            closeButton.style.border = "none";
+            closeButton.style.borderRadius = "4px";
+            closeButton.style.cursor = "pointer";
+            closeButton.onclick = () => {
+                document.body.removeChild(modal);
+            };
+
+            modalContent.appendChild(closeButton);
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+
+        // ======================
+        // FONCTIONS UTILITAIRES
+        // ======================
+
+        // Réinitialiser l'examen
+        function resetExam() {
+            examStarted = false;
+            examSubmitted = false;
+            timeLeft = 5400;
+            clearInterval(timerInterval);
+
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+            inputs.forEach(input => {
+                input.value = "";
+                input.disabled = true;
+                input.parentElement.classList.remove('correct', 'incorrect');
+            });
+
+            const corrections = document.querySelectorAll('.correction');
+            corrections.forEach(correction => {
+                correction.classList.remove('show');
+            });
+
+            document.getElementById('global-score').textContent = "0/120";
+            Object.keys(chapters).forEach(chapter => {
+                document.getElementById(`${chapter}-score`).textContent = `0/${chapters[chapter].reduce((a, b) => a + weights[b], 0)}`;
+            });
+
+            document.getElementById("start-exam-btn").disabled = false;
+            document.getElementById("submit-exam-btn").disabled = true;
+            document.getElementById("chapters-section").classList.add("hidden");
+            document.getElementById("exam-mode").textContent = "Désactivé";
+            document.getElementById("timer").textContent = "1h30";
+            document.getElementById('progress-percentage').textContent = "0%";
+            document.getElementById('progress-bar').style.width = "0%";
+        }
+
+        // Afficher un message
+        function showMessage(message, type) {
+            const messageElement = document.getElementById(`${type}-message`);
+            messageElement.textContent = message;
+            setTimeout(() => {
+                messageElement.textContent = "";
+            }, 3000);
+        }
+
+        // Charger les données au démarrage
+        window.onload = () => {
+            // Vérifier si un utilisateur est déjà connecté (simulé via localStorage)
+            const savedUser = localStorage.getItem("currentUser");
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById("user-email").textContent = currentUser.email;
+                document.getElementById("user-role").textContent = currentUser.role === "teacher" ? "Enseignant" : "Étudiant";
+                document.getElementById("login-section").classList.add("hidden");
+                document.getElementById("main-section").classList.remove("hidden");
+
+                if (currentUser.role === "student") {
+                    loadStudentData();
+                } else {
+                    loadTeacherDashboard();
+                }
+            }
+        };
+
+        // Sauvegarder l'utilisateur actuel dans localStorage
+        function saveCurrentUser() {
+            if (currentUser) {
+                localStorage.setItem("currentUser", JSON.stringify(currentUser));
+            }
+        }
+    </script>
+</body>
+</html>
