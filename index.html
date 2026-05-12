@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grille d'Examen Locale - Mécanique Physique</title>
+    <title>Examen - Mécanique Physique</title>
 
     <!-- MathJax pour les équations -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -193,9 +193,6 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        .login-form input {
-            margin-bottom: 10px;
-        }
         .user-info {
             display: flex;
             justify-content: space-between;
@@ -232,10 +229,6 @@
         .teacher-dashboard {
             margin: 20px 0;
         }
-        .teacher-dashboard table {
-            width: 100%;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
@@ -271,7 +264,7 @@
                 <button onclick="logout()">Déconnexion</button>
             </div>
 
-            <h1>Grille d'Examen - Mécanique Physique</h1>
+            <h1>Examen - Mécanique Physique</h1>
             <p class="note">Mode examen : <strong id="exam-mode">Désactivé</strong> | Temps restant : <span id="timer" class="timer">1h30</span></p>
 
             <div class="progress-container">
@@ -284,6 +277,7 @@
             <div class="buttons">
                 <button onclick="startExam()" id="start-exam-btn">Commencer l'examen</button>
                 <button onclick="submitExam()" id="submit-exam-btn" disabled>Soumettre l'examen</button>
+                <button onclick="saveAllAnswers()">Enregistrer les réponses</button>
                 <button onclick="exportToPDF()">Exporter en PDF</button>
                 <button onclick="exportToCSV()">Exporter en CSV</button>
             </div>
@@ -510,7 +504,7 @@
 
         // Comptes utilisateurs (simulés)
         const users = [
-            { email: "tarik.bouragba@eigsica.ma", password: "prof123", role: "teacher", name: "Professeur Bouragba" },
+            { email: "enseignant@univ.fr", password: "prof123", role: "teacher", name: "Professeur Dupont" },
             { email: "etudiant1@univ.fr", password: "etud123", role: "student", name: "Tarik BOURAGBA" },
             { email: "etudiant2@univ.fr", password: "etud456", role: "student", name: "Jean Martin" },
             { email: "etudiant3@univ.fr", password: "etud789", role: "student", name: "Marie Durand" }
@@ -529,8 +523,8 @@
             "ex2-3-q1": ["2t\\vec{i} + \\cos(t)\\vec{j} - e^{-t}\\vec{k}", "2t i + cos(t) j - e^{-t} k", "(2t, cos(t), -e^{-t})"],
             "ex2-3-q2": ["2\\vec{i} - \\sin(t)\\vec{j} + e^{-t}\\vec{k}", "2 i - sin(t) j + e^{-t} k", "(2, -sin(t), e^{-t})"],
             "ex3-1-q1": ["coordonnées cylindriques", "r cos θ", "r sin θ", "x = r cosθ", "y = r sinθ"],
-            "ex3-3-q1": ["(√2, π/4, 0)", "(sqrt(2), pi/4, 0)", "(1.414, 0.785, 0)"],
-            "ex3-3-q2": ["(2, -π/2, 3)", "(2, -pi/2, 3)", "(2, -1.571, 3)"],
+            "ex3-3-q1": ["(√2, π/4, 0)", "(sqrt(2), pi/4, 0)"],
+            "ex3-3-q2": ["(2, -π/2, 3)", "(2, -pi/2, 3)"],
             "ex4-1-q1": ["x = r cos θ", "y = r sin θ", "z = z", "r = sqrt(x² + y²)", "θ = arctan(y/x)"],
             "ex4-3-q1": ["(5, -0.927, 2)", "(5, -53.13°, 2)", "(5, -0.927 rad, 2)"]
         };
@@ -592,6 +586,9 @@
                 document.getElementById("main-section").classList.remove("hidden");
                 showMessage("Connexion réussie !", "success");
 
+                // Sauvegarder l'utilisateur actuel
+                saveCurrentUser();
+
                 // Charger les données selon le rôle
                 if (role === "student") {
                     loadStudentData();
@@ -620,6 +617,13 @@
             showMessage("Déconnexion réussie.", "success");
         }
 
+        // Sauvegarder l'utilisateur actuel dans localStorage
+        function saveCurrentUser() {
+            if (currentUser) {
+                localStorage.setItem("currentUser", JSON.stringify(currentUser));
+            }
+        }
+
         // Charger les données de l'étudiant
         function loadStudentData() {
             const savedAnswers = localStorage.getItem(`examAnswers_${currentUser.email}`);
@@ -642,7 +646,7 @@
 
                 if (examStarted) {
                     document.getElementById("start-exam-btn").disabled = true;
-                    document.getElementById("submit-exam-btn").disabled = !examSubmitted;
+                    document.getElementById("submit-exam-btn").disabled = examSubmitted;
                     document.getElementById("chapters-section").classList.remove("hidden");
                     document.getElementById("exam-mode").textContent = "Activé";
 
@@ -763,9 +767,9 @@
             if (!currentUser) return;
 
             const state = {
-                examStarted,
-                timeLeft,
-                examSubmitted
+                examStarted: examStarted,
+                timeLeft: timeLeft,
+                examSubmitted: examSubmitted
             };
             localStorage.setItem(`examState_${currentUser.email}`, JSON.stringify(state));
         }
@@ -893,7 +897,7 @@
 
             // Titre
             doc.setFontSize(20);
-            doc.text("Grille de Compétences - Mécanique Physique", 105, 20, { align: "center" });
+            doc.text("Examen - Mécanique Physique", 105, 20, { align: "center" });
             doc.setFontSize(12);
             doc.text(`Étudiant : ${currentUser ? currentUser.name : "Inconnu"}`, 105, 30, { align: "center" });
             doc.text(`Score : ${document.getElementById('global-score').textContent}`, 105, 40, { align: "center" });
@@ -918,7 +922,7 @@
             });
 
             // Sauvegarder le PDF
-            doc.save(`grille_mecanique_physique_${currentUser ? currentUser.email : "inconnu"}.pdf`);
+            doc.save(`examen_mecanique_physique_${currentUser ? currentUser.email : "inconnu"}.pdf`);
         }
 
         // Exporter en CSV
@@ -945,7 +949,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `grille_mecanique_physique_${currentUser ? currentUser.email : "inconnu"}.csv`);
+            link.setAttribute("download", `examen_mecanique_physique_${currentUser ? currentUser.email : "inconnu"}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1025,7 +1029,7 @@
                 return;
             }
 
-            // Créer une fenêtre modale (simplifiée)
+            // Créer une fenêtre modale
             const modal = document.createElement("div");
             modal.style.position = "fixed";
             modal.style.top = "0";
@@ -1142,7 +1146,7 @@
 
         // Charger les données au démarrage
         window.onload = () => {
-            // Vérifier si un utilisateur est déjà connecté (simulé via localStorage)
+            // Vérifier si un utilisateur est déjà connecté
             const savedUser = localStorage.getItem("currentUser");
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -1158,13 +1162,6 @@
                 }
             }
         };
-
-        // Sauvegarder l'utilisateur actuel dans localStorage
-        function saveCurrentUser() {
-            if (currentUser) {
-                localStorage.setItem("currentUser", JSON.stringify(currentUser));
-            }
-        }
     </script>
 </body>
 </html>
